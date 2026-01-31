@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+}
+
+:root {
+  font-family: var(--font-sans);
+}
+
+@layer components {
+  /* Custom prose modifications if needed */
+  .prose {
+    max-width: 65ch;
+  }
+}
