@@ -3,15 +3,24 @@
 
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
-  --color-primary: #3b82f6;
+  --color-primary: #6366f1;
+  /* Indigo-500 */
   --color-primary-foreground: #ffffff;
 }
 
 :root {
   font-family: var(--font-sans);
+  @apply bg-[#0B0C10] text-gray-300;
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  }
 }
 
 @layer components {
+
   /* Custom prose modifications if needed */
   .prose {
     max-width: 65ch;
