@@ -1,27 +1,88 @@
 ---
-import { getEntry } from 'astro:content';
-import DocsLayout from '../layouts/DocsLayout.astro';
-import { renderMarkdown } from '../lib/markdown';
-
-// Fetch the singleton entry 'index' created by our loader
-const entry = await getEntry('docs', 'index');
-
-if (!entry) {
-  throw new Error('Could not find docs entry. Please check configuration.');
-}
-
-const { html, headings } = await renderMarkdown(entry.data.readmeContent);
+import Hero from "../components/landing/Hero.astro";
+import HowItWorks from "../components/landing/HowItWorks.astro";
+import PreviewSection from "../components/landing/PreviewSection.astro";
+import WhyThis from "../components/landing/WhyThis.astro";
+import Features from "../components/landing/Features.astro";
+import CallToAction from "../components/landing/CallToAction.astro";
+import "../styles/global.css";
 ---
 
-<DocsLayout title={entry.data.title} headings={headings}>
-  <div class="mb-8">
-    <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-2">{entry.data.title}</h1>
-    {entry.data.description && <p class="text-lg text-gray-600">{entry.data.description}</p>}
-    {entry.data.repoUrl && (
-       <a href={entry.data.repoUrl} target="_blank" class="text-sm text-blue-600 hover:text-blue-800 underline">
-         View on GitHub
-       </a>
-    )}
-  </div>
-  <div set:html={html} />
-</DocsLayout>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>
+            README → Docs Generator | Turn your GitHub README into a site
+        </title>
+        <meta
+            name="description"
+            content="Generate a documentation site from your GitHub README in seconds. Zero config, blazing fast."
+        />
+    </head>
+    <body class="bg-white">
+        <nav
+            class="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50"
+        >
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center">
+                        <span
+                            class="text-xl font-bold text-gray-900 tracking-tight"
+                            >README → Docs</span
+                        >
+                    </div>
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a
+                            href="https://github.com/Githi54/readme-docs"
+                            target="_blank"
+                            class="text-gray-500 hover:text-gray-900 transition-colors"
+                        >
+                            GitHub
+                        </a>
+                        <a
+                            href="/demo"
+                            class="text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 px-4 py-2 rounded-md transition-colors"
+                        >
+                            View Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <Hero />
+            <HowItWorks />
+            <PreviewSection />
+            <WhyThis />
+            <Features />
+            <CallToAction />
+        </main>
+
+        <footer class="bg-gray-50 py-12 border-t border-gray-200">
+            <div
+                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center bg-gray-50 border-t border-gray-200"
+            >
+                <div class="mb-4 md:mb-0">
+                    <span class="text-gray-500 text-sm"
+                        >© 2026 README → Docs. Open Source.</span
+                    >
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-gray-500">
+                        Twitter
+                    </a>
+                    <a
+                        href="https://github.com/Githi54/readme-docs"
+                        class="text-gray-400 hover:text-gray-500"
+                    >
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
