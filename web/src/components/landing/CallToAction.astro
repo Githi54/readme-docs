@@ -1,5 +1,5 @@
 ---
-
+import { ROUTES } from "../../consts";
 ---
 
 <section class="relative py-16 overflow-hidden">
@@ -23,7 +23,7 @@
         </p>
         <div class="flex justify-center gap-4">
             <a
-                href="/demo"
+                href={ROUTES.GENERATE}
                 class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 md:py-4 md:text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.7)]"
             >
                 Try it now

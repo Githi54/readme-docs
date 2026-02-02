@@ -7,3 +7,8 @@ export const SITE_CONFIG = {
         branch: 'main'
     }
 };
+
+export const ROUTES = {
+    HOME: '/',
+    GENERATE: '/generate'
+} as const;

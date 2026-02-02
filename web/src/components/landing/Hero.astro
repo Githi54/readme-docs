@@ -1,5 +1,5 @@
 ---
-
+import { ROUTES } from "../../consts";
 ---
 
 <section class="relative pt-24 pb-32 overflow-hidden">
@@ -33,13 +33,13 @@
 
         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             <a
-                href="/demo"
+                href={ROUTES.GENERATE}
                 class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 md:py-4 md:text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.7)]"
             >
                 Generate Docs
             </a>
             <a
-                href="/demo"
+                href={ROUTES.GENERATE}
                 class="inline-flex items-center justify-center px-8 py-3 border border-gray-700 text-base font-medium rounded-md text-gray-300 bg-white/5 hover:bg-white/10 md:py-4 md:text-lg transition-colors backdrop-blur-sm"
             >
                 View Example

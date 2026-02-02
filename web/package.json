@@ -9,14 +9,19 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@astrojs/node": "^9.5.2",
     "@astrojs/preact": "^4.1.3",
     "@tailwindcss/typography": "^0.5.19",
     "astro": "^5.17.1",
     "astro-icon": "^1.1.5",
     "clsx": "^2.1.1",
     "marked": "^17.0.1",
+    "mermaid": "^11.12.2",
+    "node-emoji": "^2.2.0",
     "preact": "^10.28.3",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

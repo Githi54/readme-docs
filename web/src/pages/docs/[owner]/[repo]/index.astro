@@ -1,0 +1,25 @@
+---
+export const prerender = false;
+
+import { fetchReadme } from "../../../../lib/github";
+import { parseReadmeIntoSections } from "../../../../lib/sections";
+
+const { owner, repo } = Astro.params;
+
+if (!owner || !repo) {
+    return Astro.redirect("/generate");
+}
+
+try {
+    const rawReadme = await fetchReadme({ owner, repo });
+    const sections = parseReadmeIntoSections(rawReadme);
+
+    if (sections.length > 0) {
+        return Astro.redirect(`/docs/${owner}/${repo}/${sections[0].slug}`);
+    }
+} catch (e) {
+    console.error(`Error in docs root for ${owner}/${repo}:`, e);
+}
+
+return Astro.redirect("/generate");
+---

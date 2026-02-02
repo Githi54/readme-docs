@@ -1,32 +1,68 @@
 import { marked } from 'marked';
+import * as emoji from 'node-emoji';
 import type { MarkdownHeading } from 'astro';
 
-export async function renderMarkdown(text: string) {
+interface RenderOptions {
+    owner: string;
+    repo: string;
+    branch?: string;
+}
+
+export async function renderMarkdown(text: string, options?: RenderOptions) {
     const headings: MarkdownHeading[] = [];
     const renderer = new marked.Renderer();
 
-    // Custom renderer to capture headings
-    // @ts-ignore
-    renderer.heading = function (textOrObj, level, raw) {
-        let text, depth, rawContent;
-        if (typeof textOrObj === 'object' && textOrObj !== null && 'depth' in textOrObj) {
-            const obj = textOrObj as any;
-            depth = obj.depth;
-            rawContent = obj.raw;
-            text = obj.text;
-        } else {
-            text = textOrObj;
-            depth = level;
-            rawContent = raw;
-        }
+    const branch = options?.branch || 'main';
+    const rawBaseUrl = options ? `https://raw.githubusercontent.com/${options.owner}/${options.repo}/${branch}` : '';
+    const blobBaseUrl = options ? `https://github.com/${options.owner}/${options.repo}/blob/${branch}` : '';
 
-        const content = String(rawContent || text || '');
-        const slug = content.toLowerCase().replace(/[^\w]+/g, '-');
-        headings.push({ depth: depth || 1, slug, text: content });
+    // Custom renderer for relative links
+    renderer.link = function (this: any, { href, title, tokens }: any) {
+        let cleanHref = href;
+        if (options && !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+            const path = href.startsWith('./') ? href.slice(2) : href;
+            cleanHref = `${blobBaseUrl}/${path}`;
+        }
+        const text = this.parser.parseInline(tokens);
+        return `<a href="${cleanHref}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+    };
+
+    // Custom renderer for relative images
+    renderer.image = function (this: any, { href, title, text }: any) {
+        let cleanHref = href;
+        if (options && !href.startsWith('http') && !href.startsWith('//')) {
+            const path = href.startsWith('./') ? href.slice(2) : href;
+            cleanHref = `${rawBaseUrl}/${path}`;
+        }
+        return `<img src="${cleanHref}" alt="${text}"${title ? ` title="${title}"` : ''} />`;
+    };
+
+    // Custom renderer for code blocks (specifically for mermaid)
+    renderer.code = function (this: any, { text, lang }: any) {
+        if (lang === 'mermaid') {
+            return `<div class="mermaid-container my-8 flex justify-center bg-white/5 p-6 rounded-xl border border-white/5 overflow-x-auto"><pre class="mermaid">${text}</pre></div>`;
+        }
+        // Use default code rendering for others
+        const escapedText = text.replace(/[&<>"']/g, (m: string) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[m] || m));
+        return `<pre><code class="language-${lang || 'text'}">${escapedText}</code></pre>`;
+    };
+
+    // Custom renderer to capture headings and parse inline markdown
+    renderer.heading = function (this: any, { tokens, depth }: any) {
+        const text = this.parser.parseInline(tokens);
+        const rawText = tokens.map((t: any) => t.text || t.raw).join('');
+        const slug = rawText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
+
+        headings.push({ depth, slug, text: rawText });
         return `<h${depth} id="${slug}">${text}</h${depth}>`;
     };
 
-    const html = await marked.parse(text, { renderer, async: true });
+    // Parse emojis (GitHub style :emoji:)
+    const emojifiedText = emoji.emojify(text);
+
+    const html = await marked.parse(emojifiedText, { renderer, async: true });
 
     return { html, headings };
 }

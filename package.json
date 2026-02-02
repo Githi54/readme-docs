@@ -7,5 +7,10 @@
     "scripts": {
         "dev:web": "npm run dev -w web",
         "build:web": "npm run build -w web"
+    },
+    "dependencies": {
+        "@rollup/rollup-darwin-x64": "^4.57.1",
+        "fdir": "^6.5.0",
+        "node-html-parser": "^7.0.2"
     }
 }
