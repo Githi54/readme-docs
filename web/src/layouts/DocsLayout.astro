@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Sidebar from '../components/Sidebar.astro';
+import Search from '../components/Search.astro';
 import type { MarkdownHeading } from 'astro';
 
 interface Props {
@@ -37,19 +38,12 @@ const { title = 'Docs', headings = [], variant = 'docs' } = Astro.props;
             <>
                 <!-- Search -->
                 <div class="w-64 hidden sm:block">
-                    <div id="search" class="search-dark"></div>
+                    <Search />
                 </div>
                 
                 <!-- Scripts for Pagefind -->
                 <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
                 <script src="/pagefind/pagefind-ui.js" is:inline></script>
-                <script is:inline>
-                    window.addEventListener('DOMContentLoaded', (event) => {
-                        if (window.PagefindUI) {
-                            new PagefindUI({ element: "#search", showImages: false });
-                        }
-                    });
-                </script>
             </>
             )}
 
