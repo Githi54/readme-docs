@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
-import { fetchReadme, processReadme } from '../lib/github';
-import { SITE_CONFIG } from '../consts';
+import { fetchReadme, processReadme } from '@/lib/github';
+import { SITE_CONFIG } from '@/consts';
 
 const docs = defineCollection({
     loader: async () => {

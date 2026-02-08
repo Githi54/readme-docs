@@ -1,14 +1,13 @@
 ---
 export const prerender = true;
 
-import Hero from "../components/landing/Hero.astro";
-import HowItWorks from "../components/landing/HowItWorks.astro";
-import PreviewSection from "../components/landing/PreviewSection.astro";
-import WhyThis from "../components/landing/WhyThis.astro";
-import CallToAction from "../components/landing/CallToAction.astro";
-import Footer from "../components/landing/Footer.astro";
-import "../styles/global.css";
-import DocsLayout from "../layouts/DocsLayout.astro";
+import Hero from "@/components/landing/Hero.astro";
+import HowItWorks from "@/components/landing/HowItWorks.astro";
+import WhyThis from "@/components/landing/WhyThis.astro";
+import CallToAction from "@/components/landing/CallToAction.astro";
+import Footer from "@/components/landing/Footer.astro";
+import "@/styles/global.css";
+import DocsLayout from "@/layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
@@ -17,7 +16,6 @@ import DocsLayout from "../layouts/DocsLayout.astro";
 >
     <Hero />
     <HowItWorks />
-    <PreviewSection />
     <WhyThis />
     <CallToAction />
     <Footer />

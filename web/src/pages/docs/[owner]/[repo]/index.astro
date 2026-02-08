@@ -1,8 +1,8 @@
 ---
 export const prerender = false;
 
-import { fetchReadme } from "../../../../lib/github";
-import { parseReadmeIntoSections } from "../../../../lib/sections";
+import { fetchReadme } from "@/lib/github";
+import { parseReadmeIntoSections } from "@/lib/sections";
 
 const { owner, repo } = Astro.params;
 
