@@ -19,12 +19,17 @@ export async function renderMarkdown(text: string, options?: RenderOptions) {
     // Custom renderer for relative links
     renderer.link = function (this: any, { href, title, tokens }: any) {
         let cleanHref = href;
-        if (options && !href.startsWith('http') && !href.startsWith('//') && !href.startsWith('#') && !href.startsWith('mailto:')) {
+        const isExternal = href.startsWith('http') || href.startsWith('//');
+
+        if (options && !isExternal && !href.startsWith('#') && !href.startsWith('mailto:')) {
             const path = href.startsWith('./') ? href.slice(2) : href;
             cleanHref = `${blobBaseUrl}/${path}`;
         }
+
         const text = this.parser.parseInline(tokens);
-        return `<a href="${cleanHref}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+        const targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+        return `<a href="${cleanHref}"${title ? ` title="${title}"` : ''}${targetAttr}>${text}</a>`;
     };
 
     // Custom renderer for relative images

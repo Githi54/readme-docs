@@ -339,6 +339,25 @@ import "@/styles/global.css";
         setLoading(true);
 
         try {
+            // Validate repository existence
+            const response = await fetch("/api/validate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    owner: parsed.owner,
+                    repo: parsed.repo,
+                }),
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error("Repository not found or private");
+                }
+                throw new Error("Validation failed");
+            }
+
             // Show generating message
             showSuccess(
                 `Generating documentation for ${parsed.owner}/${parsed.repo}...`,
@@ -349,8 +368,11 @@ import "@/styles/global.css";
 
             // Redirect to docs page - docs will be fetched on demand
             window.location.href = `/docs/${parsed.owner}/${parsed.repo}`;
-        } catch (error) {
-            showError("Error generating documentation. Please try again.");
+        } catch (error: any) {
+            showError(
+                error.message ||
+                    "Error generating documentation. Please try again.",
+            );
             console.error("Generation error:", error);
             setLoading(false);
         }
