@@ -13,9 +13,11 @@
     "@astrojs/node": "^9.5.2",
     "@astrojs/preact": "^4.1.3",
     "@tailwindcss/typography": "^0.5.19",
+    "archiver": "^7.0.1",
     "astro": "^5.17.1",
     "astro-icon": "^1.1.5",
     "clsx": "^2.1.1",
+    "isomorphic-dompurify": "^3.0.0-rc.2",
     "marked": "^17.0.1",
     "mermaid": "^11.12.2",
     "node-emoji": "^2.2.0",
@@ -25,6 +27,8 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "@types/archiver": "^7.0.0",
+    "@types/dompurify": "^3.0.5",
     "pagefind": "^1.4.0",
     "tailwindcss": "^4.1.18"
   }

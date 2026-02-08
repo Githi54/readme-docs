@@ -1,5 +1,6 @@
 import { marked } from 'marked';
 import * as emoji from 'node-emoji';
+import DOMPurify from 'isomorphic-dompurify';
 import type { MarkdownHeading } from 'astro';
 
 interface RenderOptions {
@@ -67,7 +68,13 @@ export async function renderMarkdown(text: string, options?: RenderOptions) {
     // Parse emojis (GitHub style :emoji:)
     const emojifiedText = emoji.emojify(text);
 
-    const html = await marked.parse(emojifiedText, { renderer, async: true });
+    const dirtyHtml = await marked.parse(emojifiedText, { renderer, async: true });
+
+    // Sanitize HTML to prevent XSS (the "modal" alert issue)
+    const html = DOMPurify.sanitize(dirtyHtml, {
+        ADD_TAGS: ['iframe'], // Allow iframes for embeds if needed, but be careful
+        ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+    });
 
     return { html, headings };
 }
