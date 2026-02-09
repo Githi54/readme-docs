@@ -1,5 +1,5 @@
 
-export interface ParsedRepo {
+interface ParsedRepo {
     valid: boolean;
     owner?: string;
     repo?: string;

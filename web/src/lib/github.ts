@@ -1,4 +1,4 @@
-export interface GithubRepo {
+interface GithubRepo {
     owner: string;
     repo: string;
     branch?: string;

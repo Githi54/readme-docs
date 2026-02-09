@@ -1,0 +1,27 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "project": [
+        "src/**/*.{astro,mdx,js,ts}"
+    ],
+    "ignore": [
+        "src/content/config.ts",
+        "astro.config.mjs",
+        "src/package.json"
+    ],
+    "ignoreDependencies": [
+        "@astrojs/check",
+        "@tailwindcss/typography",
+        "astro-icon",
+        "clsx",
+        "tailwind-merge",
+        "@tailwindcss/vite",
+        "@types/archiver",
+        "@types/dompurify",
+        "pagefind",
+        "tailwindcss"
+    ],
+    "ignoreBinaries": [
+        "astro",
+        "knip"
+    ]
+}
