@@ -5,24 +5,31 @@ interface GithubRepo {
 }
 
 export async function fetchReadme({ owner, repo, branch = 'main' }: GithubRepo): Promise<string> {
-    const url = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/README.md`;
+    // List of possible branches to check
+    const branches = [branch];
+    if (branch === 'main') branches.push('master');
+    // Ensure unique branches
+    const uniqueBranches = Array.from(new Set(branches));
 
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            // Fallback to master if main fails, common pattern
-            if (branch === 'main') {
-                const masterUrl = `https://raw.githubusercontent.com/${owner}/${repo}/master/README.md`;
-                const masterResponse = await fetch(masterUrl);
-                if (masterResponse.ok) return await masterResponse.text();
+    // List of possible filenames to check
+    const filenames = ['README.md', 'README', 'readme.md', 'README.rst', 'README.txt'];
+
+    for (const b of uniqueBranches) {
+        for (const filename of filenames) {
+            const url = `https://raw.githubusercontent.com/${owner}/${repo}/${b}/${filename}`;
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    return await response.text();
+                }
+            } catch (e) {
+                // Continue to next combination
+                console.warn(`Failed to fetch ${url}`, e);
             }
-            throw new Error(`Failed to fetch README: ${response.statusText}`);
         }
-        return await response.text();
-    } catch (error) {
-        console.error(`Error fetching README for ${owner}/${repo}:`, error);
-        throw error;
     }
+
+    throw new Error(`Failed to fetch README for ${owner}/${repo}: Not Found in branches [${uniqueBranches.join(', ')}] with common filenames.`);
 }
 
 export function processReadme(content: string, { owner, repo, branch = 'main' }: GithubRepo): string {

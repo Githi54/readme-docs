@@ -61,7 +61,11 @@ export async function renderMarkdown(text: string, options?: RenderOptions) {
         const rawText = tokens.map((t: any) => t.text || t.raw).join('');
         const slug = rawText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
 
-        headings.push({ depth, slug, text: rawText });
+        // Strip HTML tags to get clean text for the TOC
+        // We use the rendered 'text' which handles markdown parsing, then strip tags
+        const cleanText = text.replace(/<[^>]*>/g, '').trim();
+
+        headings.push({ depth, slug, text: cleanText });
         return `<h${depth} id="${slug}">${text}</h${depth}>`;
     };
 
