@@ -1,0 +1,212 @@
+---
+export const prerender = false;
+
+import EnhancedDocsLayout from "@/layouts/EnhancedDocsLayout.astro";
+import { fetchReadme, processReadme } from "@/lib/github";
+import { renderMarkdown } from "@/lib/markdown";
+import type { MarkdownHeading } from "astro";
+import {
+    parseReadmeIntoSections,
+    findSectionBySlug,
+    getAdjacentSections,
+    type Section,
+} from "@/lib/sections";
+
+const { owner, repo, section: sectionSlug } = Astro.params;
+
+if (!owner || !repo || !sectionSlug) {
+    return Astro.redirect("/generate");
+}
+
+let sections: Section[] = [];
+let currentSection: Section | undefined | null = null;
+let error: string | null = null;
+let html = "";
+let headings: MarkdownHeading[] = [];
+
+try {
+    // Fetch README from GitHub
+    const rawReadme = await fetchReadme({ owner, repo });
+
+    // Parse into sections
+    sections = parseReadmeIntoSections(rawReadme);
+
+    // Find current section
+    currentSection = findSectionBySlug(sections, sectionSlug);
+
+    if (!currentSection) {
+        // Fallback to first section if slug not found
+        return Astro.redirect(`/docs/${owner}/${repo}/${sections[0].slug}`);
+    }
+
+    // Process section content to fix relative links
+    const processedContent = processReadme(currentSection.content, {
+        owner,
+        repo,
+    });
+
+    // Render markdown
+    const rendered = await renderMarkdown(processedContent, { owner, repo });
+    html = rendered.html;
+    headings = rendered.headings;
+} catch (e) {
+    console.error(
+        `Error fetching section ${sectionSlug} for ${owner}/${repo}:`,
+        e,
+    );
+    error = "Failed to load this section. Please try again later.";
+}
+
+const { previous, next } = getAdjacentSections(sections, sectionSlug);
+const title = currentSection ? `${currentSection.title} - ${repo}` : repo;
+
+// Filter headings in frontmatter to avoid Astro compiler confusion with < in template
+const filteredHeadings = headings.filter((h) => h.depth <= 3);
+---
+
+<EnhancedDocsLayout
+    title={title}
+    repoName={repo}
+    owner={owner}
+    sections={sections}
+    currentSlug={sectionSlug}
+>
+    {
+        error ? (
+            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg mb-6 text-red-400">
+                {error}
+            </div>
+        ) : (
+            <>
+                <h1 class="text-4xl font-bold tracking-tight text-white mb-8 border-b border-white/5 pb-4">
+                    {currentSection?.title}
+                </h1>
+
+                <div class="docs-content">
+                    {(() => {
+                        // Strip first H1 if it's redundant with the section title
+                        let finalHtml = html;
+                        const h1Match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+                        if (h1Match) {
+                            const h1Content = h1Match[1].replace(/<[^>]*>/g, '').trim();
+                            // If it matches repo name or section title, remove it
+                            if (h1Content.toLowerCase() === repo.toLowerCase() || 
+                                h1Content.toLowerCase() === currentSection?.title.toLowerCase()) {
+                                finalHtml = html.replace(/<h1[^>]*>[\s\S]*?<\/h1>/i, '');
+                            }
+                        }
+                        return <div set:html={finalHtml} />;
+                    })()}
+                </div>
+
+                <style is:global>
+                    /* Ensure badges at the top of the content are in a row */
+                    .docs-content > p:first-child:has(img) {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0.5rem;
+                        align-items: center;
+                        margin-bottom: 2rem;
+                    }
+                    .docs-content img {
+                        display: inline-block;
+                        margin: 0 !important;
+                    }
+                </style>
+            </>
+        )
+    }
+
+    <!-- Adjacent Navigation -->
+    <div
+        slot="adjacent-nav"
+        class="w-full flex flex-col sm:flex-row gap-4 justify-between mt-12 pt-8 border-t border-white/5"
+    >
+        {
+            previous && (
+                <a
+                    href={`/docs/${owner}/${repo}/${previous.slug}`}
+                    class="flex-1 px-6 py-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group text-left"
+                >
+                    <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+                        Previous
+                    </div>
+                    <div class="text-white font-medium group-hover:text-indigo-400 transition-colors flex items-center gap-2">
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                        {previous.title}
+                    </div>
+                </a>
+            )
+        }
+
+        {
+            next && (
+                <a
+                    href={`/docs/${owner}/${repo}/${next.slug}`}
+                    class="flex-1 px-6 py-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group text-right ml-auto"
+                >
+                    <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">
+                        Next
+                    </div>
+                    <div class="text-white font-medium group-hover:text-indigo-400 transition-colors flex items-center gap-2 justify-end">
+                        {next.title}
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    </div>
+                </a>
+            )
+        }
+    </div>
+
+    <!-- Right Sidebar Table of Contents -->
+    <ul slot="toc" class="space-y-3 text-sm">
+        {
+            filteredHeadings.length > 0 ? (
+                filteredHeadings.map((heading) => (
+                    <li
+                        class:list={[
+                            {
+                                "pl-4 border-l border-white/5 ml-1":
+                                    heading.depth === 3,
+                            },
+                        ]}
+                    >
+                        <a
+                            href={`#${heading.slug}`}
+                            class="text-gray-400 hover:text-white transition-colors block py-0.5"
+                        >
+                            {heading.text}
+                        </a>
+                    </li>
+                ))
+            ) : (
+                <li class="text-gray-600 italic">
+                    No headings in this section
+                </li>
+            )
+        }
+    </ul>
+</EnhancedDocsLayout>
